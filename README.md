@@ -2,7 +2,7 @@
 
 It's a fullstack web application for complete company personnel management. It include administrative dashboard, data analysis and CRUD operation
 
-## 🚀 Tecnology Used
+## 🚀 Tecnologies Used
 
 ### Backend
 - **Python 3.8+**
@@ -11,7 +11,7 @@ It's a fullstack web application for complete company personnel management. It i
 - **PostgreSQL** - Database
 - **JWT** - Autentication
 
-### Frontend (Prossimamente)
+### Frontend (Coming soon)
 - **Vue.js 3** - Framework frontend
 - **Chart.js** - Data visualization
 - **Vite** - Build tool
