@@ -1,18 +1,18 @@
-# 🏢 Employee Management Dashboard
+# 🏢 Employee Management
 
-Un'applicazione web fullstack moderna per la gestione completa del personale aziendale, con dashboard amministrativa e analisi dati in tempo reale.
+It's a fullstack web application for complete company personnel management. It include administrative dashboard, data analysis and CRUD operation
 
-## 🚀 Tecnologie Utilizzate
+## 🚀 Tecnology Used
 
 ### Backend
 - **Python 3.8+**
-- **Django 4.x** - Framework web principale
+- **Django 4.x** - Framework web 
 - **Django REST Framework** - API REST
 - **PostgreSQL** - Database
-- **JWT** - Autenticazione
+- **JWT** - Autentication
 
 ### Frontend (Prossimamente)
 - **Vue.js 3** - Framework frontend
-- **Chart.js** - Visualizzazioni dati
+- **Chart.js** - Data visualization
 - **Vite** - Build tool
 - **PrimeVue** - Componenti UI
