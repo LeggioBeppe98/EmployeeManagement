@@ -38,12 +38,33 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Le mie app
+    # Le mie app (in alto quelle aggiunte per ultime)         
+    'rest_framework_simplejwt', 
     'django_extensions',
     'employees',  
     'rest_framework',
     'corsheaders',
 ]
+
+# aggiunto per framwork rest api e jwt
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+# aggiunto per jwt
+from datetime import timedelta
+
+# aggiunto per jwt
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
