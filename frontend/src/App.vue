@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <nav class="navbar">
+    <nav class="navbar" v-if="userStore.isAuthenticated">
       <div class="navbar-brand">
         <h1>🏢 Employee Dashboard</h1>
       </div>
@@ -10,7 +10,7 @@
       </div>
     </nav>
 
-    <div class="app-container">
+    <div class="app-container" v-if="userStore.isAuthenticated">
       <aside class="sidebar" v-if="userStore.isAuthenticated">
         <nav class="sidebar-nav">
           <router-link to="/dashboard" class="nav-item">📊 Dashboard</router-link>
@@ -23,6 +23,10 @@
         <router-view />
       </main>
     </div>
+
+    <!-- Mostra le pagine pubbliche (login) se non autenticato -->
+    <router-view v-else />
+
   </div>
 </template>
 

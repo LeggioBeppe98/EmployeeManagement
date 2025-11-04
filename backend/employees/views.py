@@ -1,7 +1,22 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from .models import Department, Employee
 from .serializers import DepartmentSerializer, EmployeeSerializer
+
+@api_view(['GET'])
+def current_user(request):
+    """
+    Restituisce le informazioni dell'utente corrente
+    """
+    return Response({
+        'id': request.user.id,
+        'username': request.user.username,
+        'email': request.user.email if request.user.email else '',
+        'is_staff': request.user.is_staff,
+        'is_superuser': request.user.is_superuser
+    })
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     """

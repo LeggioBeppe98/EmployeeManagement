@@ -7,36 +7,40 @@ export const useUserStore = defineStore('user', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('token'))
 
-  const isAuthenticated = true// computed(() => !!token.value)
+  const isLoading = ref(false)
+  const error = ref(null)
+
+  const isAuthenticated = computed(() => !!token.value)
 
   // Configura axios per usare il token
-  /*if (token.value) {
+  if (token.value) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`
-  }*/
+  }
 
   const login = async (credentials) => {
+    isLoading.value = true
+    error.value = null
+
     try {
-      //const response = await axios.post('http://localhost:8000/api/token/', credentials)
-      //token.value = response.data.access
-      //localStorage.setItem('token', token.value)
-      //axios.defaults.headers.common['Authorization'] = true;//`Bearer ${token.value}`
+      const response = await axios.post('http://localhost:8000/api/token/', credentials)
+      token.value = response.data.access
+      localStorage.setItem('token', token.value)
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`
       
       // Recupera info utente
-      //const userResponse = await axios.get('http://localhost:8000/api/user/')
-      user.value = {
-        id: 1,
-        username: 'admin',
-        email: 'admin@azienda.com',
-        role: 'admin',
-        first_name: 'Mario',
-        last_name: 'Rossi'
-      } 
+      const userResponse = await axios.get('http://localhost:8000/api/user/')
+      user.value = userResponse.data
 
 
+      console.log('Login successful:', user.value)
       return true
-    } catch (error) {
+    } catch (err) {
+      error.value = 'Credenziali non valide'
+      console.error('Login error:', err)
       logout()
-      throw error
+      throw err
+    } finally {
+      isLoading.value = false
     }
   }
 
@@ -51,6 +55,8 @@ export const useUserStore = defineStore('user', () => {
     user,
     token,
     isAuthenticated,
+    isLoading,
+    error,
     login,
     logout
   }
