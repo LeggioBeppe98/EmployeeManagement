@@ -39,5 +39,8 @@ urlpatterns = [
     
     # ENDPOINT USER INFO (opzionale ma utile)
     path('api/user/', views.current_user, name='current_user'),
+
+    # dashboard
+    path('api/dashboard/stats/', views.dashboard_stats, name='dashboard_stats'),
 ]
 
