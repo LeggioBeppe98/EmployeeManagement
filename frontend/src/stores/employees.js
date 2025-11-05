@@ -89,16 +89,21 @@ export const useEmployeesStore = defineStore('employees', () => {
     }
   }
 
-  const createEmployee = async (employeeData) => {
-    try {
-      const response = await axios.post('http://localhost:8000/api/employees/', employeeData)
-      employees.value.push(response.data)
-      return response.data
-    } catch (err) {
-      error.value = 'Errore nella creazione dipendente'
-      throw err
-    }
+const createEmployee = async (employeeData) => {
+  try {
+    console.log('📤 Dati inviati al backend:', employeeData)
+    
+    const response = await axios.post('http://localhost:8000/api/employees/', employeeData)
+    
+    console.log('✅ Risposta backend:', response.data)
+    employees.value.push(response.data)
+    return response.data
+  } catch (err) {
+    console.error('❌ Errore dettagliato:', err.response?.data)
+    error.value = 'Errore nella creazione dipendente: ' + (err.response?.data || err.message)
+    throw err
   }
+}
 
   const updateEmployee = async (id, employeeData) => {
     try {

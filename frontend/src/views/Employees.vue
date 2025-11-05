@@ -224,9 +224,11 @@
 import { ref, onMounted, computed } from 'vue'
 import { useEmployeesStore } from '../stores/employees'
 import { useDashboardStore } from '../stores/dashboard'
+import { useDepartmentsStore } from '../stores/departments' 
 
 const employeesStore = useEmployeesStore()
 const dashboardStore = useDashboardStore()
+const departmentsStore = useDepartmentsStore()
 
 // Stato componente
 const showCreateModal = ref(false)
@@ -256,15 +258,16 @@ const allSelected = computed(() => {
 })
 
 const departments = computed(() => {
-  return dashboardStore.departmentDistribution.map(dept => ({
-    id: dept.id || dept.name, // Adatta alla struttura dei tuoi dati
-    name: dept.name
-  }))
+  return departmentsStore.departmentsForSelect
 })
 
 // Metodi
 const loadEmployees = () => {
   employeesStore.fetchEmployees()
+}
+
+const loadDepartments = () => {
+  departmentsStore.fetchDepartments()
 }
 
 const getDepartmentName = (deptId) => {
@@ -321,14 +324,30 @@ const confirmDelete = (employee) => {
 const submitEmployeeForm = async () => {
   isSubmitting.value = true
   try {
+    // PREPARA I DATI - ORA DEPARTMENT È GIÀ L'ID NUMERICO
+    const formData = {
+      first_name: employeeForm.value.first_name,
+      last_name: employeeForm.value.last_name,
+      email: employeeForm.value.email,
+      phone: employeeForm.value.phone || '',
+      position: employeeForm.value.position,
+      salary: parseFloat(employeeForm.value.salary),
+      hire_date: employeeForm.value.hire_date,
+      department: parseInt(employeeForm.value.department),  // ⭐ CONVERTI IN NUMERO
+      is_active: employeeForm.value.is_active
+    }
+
+    console.log('🔄 Dati per il backend:', formData)
+
     if (editingEmployee.value) {
-      await employeesStore.updateEmployee(editingEmployee.value.id, employeeForm.value)
+      await employeesStore.updateEmployee(editingEmployee.value.id, formData)
     } else {
-      await employeesStore.createEmployee(employeeForm.value)
+      await employeesStore.createEmployee(formData)
     }
     closeModal()
   } catch (error) {
-    console.error('Error saving employee:', error)
+    console.error('❌ Error saving employee:', error)
+    console.error('📋 Dettaglio errore backend:', error.response?.data)
   } finally {
     isSubmitting.value = false
   }
@@ -394,10 +413,7 @@ const closeModal = () => {
 // Lifecycle
 onMounted(() => {
   loadEmployees()
-  // Carica i dipartimenti per i filtri
-  if (dashboardStore.departmentDistribution.length === 0) {
-    dashboardStore.fetchDashboardData()
-  }
+  loadDepartments()
 })
 </script>
 
