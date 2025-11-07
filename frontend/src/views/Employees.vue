@@ -119,6 +119,8 @@
           </tbody>
         </table>
 
+        <!-- Definizione Overlay -->
+
         <!-- Messaggio nessun risultato -->
         <div v-if="employeesStore.filteredEmployees.length === 0" class="no-results">
           <p>Nessun dipendente trovato con i filtri attuali.</p>
@@ -254,7 +256,7 @@ const employeeForm = ref({
 // Computed
 const allSelected = computed(() => {
   return employeesStore.filteredEmployees.length > 0 && 
-         selectedEmployees.value.length === employeesStore.filteredEmployees.length
+        selectedEmployees.value.length === employeesStore.filteredEmployees.length
 })
 
 const departments = computed(() => {
