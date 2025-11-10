@@ -6,94 +6,15 @@
       <p>Gestisci i dipartimenti aziendali e i budget</p>
     </div>
 
-    <!-- Filtri e Azioni -->
-    <div class="filters-section">
-      <div class="search-box">
-        <input v-model="departmentsStore.filters.search" type="text"
-          placeholder="Cerca per nome, descrizione o budget..." class="search-input">
-      </div>
-
-      <div class="filter-controls">
-        <select v-model="departmentsStore.filters.departmentName" class="filter-select">
-          <option value="">Tutti i dipartimenti</option>
-          <option v-for="dept in departments" :key="dept.id" :value="dept.name">
-            {{ dept.name }}
-          </option>
-        </select>
-
-        <button @click="departmentsStore.clearFilters" class="clear-filters-btn">
-          Pulisci filtri
-        </button>
-
-        <button @click="showCreateModal = true" class="add-employee-btn">
-          + Nuovo Dipartimento
-        </button>
-      </div>
-    </div>
-
     <!-- Tabella Dipartimenti -->
-    <div class="employees-table-container">
-      <!-- Tabella con: Nome, Budget, N° Dipendenti, Azioni -->
-      <div v-if="departmentsStore.isLoading" class="loading-state">
-        <p>Caricamento dipendenti...</p>
-      </div>
-
-      <div v-else-if="departmentsStore.error" class="error-state">
-        <p>{{ departmentsStore.error }}</p>
-        <button @click="loadDepartments" class="retry-btn">Riprova</button>
-      </div>
-
-      <div v-else class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>
-                <input type="checkbox" :checked="allSelected" @change="toggleSelectAll">
-              </th>
-              <th>Nome</th>
-              <th>Descrizione</th>
-              <th>Budget</th>
-              <th>N. Dipendenti</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="dept in departmentsStore.filteredDepartments"
-              :class="{ 'selected': selectedDepartments.includes(dept.id) }">
-              <td>
-                <input type="checkbox" :checked="selectedDepartments.includes(dept.id)"
-                  @change="toggleDepartmentSelection(dept.id)">
-              </td>
-              <td>
-                <strong>{{ dept.name }}</strong>
-              </td>
-              <td>
-                <span class="description">{{ dept.description || 'Nessuna descrizione' }}</span>
-              </td>
-              <td>
-                <span class="budget">€{{ formatCurrency(dept.budget) }}</span>
-              </td>
-              <td>
-                <span class="employee-count">{{ getEmployeeCount(dept.id) }} dipendenti</span>
-              </td>
-              <td class="actions">
-                <button @click="editDepartment(dept)" class="edit-btn" title="Modifica">
-                  ✏️
-                </button>
-                <button @click="confirmDelete(dept)" class="delete-btn" title="Elimina">
-                  🗑️
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Messaggio nessun risultato -->
-        <div v-if="departmentsStore.filteredDepartments.length === 0" class="no-results">
-          <p>Nessun dipendente trovato con i filtri attuali.</p>
-        </div>
-      </div>
-    </div>
+    <DataTableComponent
+      :data="departmentsStore.departments"
+      :columns="tableColumns"
+      :loading="departmentsStore.isLoading"
+      @add-new="showCreateModal = true"
+      @edit="editDepartment"
+      @delete="confirmDelete"
+    />
 
     <!-- Definizione Overlay -->
     <div v-if="selectedDepartments.length > 0" class="batch-actions">
@@ -163,6 +84,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useDepartmentsStore } from '../stores/departments'
 import { useEmployeesStore } from '../stores/employees' 
+import DataTableComponent from '../components/shared/DataTableComponent.vue'
 
 const departmentsStore = useDepartmentsStore()
 const employeesStore = useEmployeesStore()
@@ -174,6 +96,14 @@ const showDeleteModal = ref(false)
 const departmentToDelete = ref(null)
 const selectedDepartments = ref([])
 const isSubmitting = ref(false)
+
+// DEFINIZIONE COLONNE
+const tableColumns = ref([
+  { field: 'name', header: 'Nome', sortable: true },
+  { field: 'description', header: 'Descrizione', sortable: true },
+  { field: 'budget', header: 'Budget', sortable: true, format: 'currency' },
+  { field: 'employeeCount', header: 'Dipendenti', sortable: true }
+])
 
 // Form dati
 const departmentForm = ref({

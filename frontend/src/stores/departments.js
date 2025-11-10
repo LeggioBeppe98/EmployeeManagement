@@ -7,33 +7,6 @@ export const useDepartmentsStore = defineStore('departments', () => {
   const departments = ref([])
   const isLoading = ref(false)
   const error = ref(null)
-  const filters = ref({
-    search: '',
-    departmentName: ''
-  })
-
-  const filteredDepartments = computed(() => {
-    let filtered = departments.value
-
-    // Filtro ricerca
-    if (filters.value.search) {
-      const searchLower = filters.value.search.toLowerCase()
-      filtered = filtered.filter(dept =>
-        dept.name.toLowerCase().includes(searchLower) ||
-        (dept.description && dept.description.toLowerCase().includes(searchLower)) ||
-        dept.budget.toString().includes(filters.value.search)
-      )
-    }
-
-    // Filtro per ID dipartimento
-    if (filters.value.departmentName) {
-      filtered = filtered.filter(dept =>
-        dept.name == filters.value.departmentName
-      )
-    }
-
-    return filtered
-  })
 
   // Getter - dipartimenti per select
   const departmentsForSelect = computed(() => {
@@ -50,14 +23,6 @@ export const useDepartmentsStore = defineStore('departments', () => {
   })
 
   // Azioni
-
-  const clearFilters = () => {
-    filters.value = {
-      search: '',
-      departmentName: ''
-    }
-  }
-
   const fetchDepartments = async () => {
     isLoading.value = true
     error.value = null
@@ -123,15 +88,12 @@ export const useDepartmentsStore = defineStore('departments', () => {
     departments,
     isLoading,
     error,
-    filters,
 
     // Getter
     departmentsForSelect,
     departmentNames,
-    filteredDepartments,
 
     // Azioni
-    clearFilters,
     fetchDepartments,
     getDepartmentById,
     getDepartmentByName,
