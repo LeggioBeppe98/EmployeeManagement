@@ -43,6 +43,22 @@ export const useUserStore = defineStore('user', () => {
       isLoading.value = false
     }
   }
+/**
+ * Verifica se il token di accesso è valido.
+ */
+  const setupAxiosInterceptors = (storeInstance) => {  
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        console.log('Token non valido - logout automatico')
+        storeInstance.logout()  // ⭐ USA L'ISTANZA PASSATA
+        window.location.href = '/login'
+      }
+      return Promise.reject(error)
+    }
+  )
+}
 
   const logout = () => {
     user.value = null
@@ -57,6 +73,7 @@ export const useUserStore = defineStore('user', () => {
     isAuthenticated,
     isLoading,
     error,
+    setupAxiosInterceptors,
     login,
     logout
   }
