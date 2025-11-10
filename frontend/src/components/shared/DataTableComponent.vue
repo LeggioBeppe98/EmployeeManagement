@@ -3,18 +3,20 @@
     <div class="data-table-container">
         <!-- Filtri -->
         <div v-if="showFilters" class="filters-section">
-            <div class="search-box">
-                <InputText v-model="filters.search" placeholder="Cerca..." class="search-input" />
-            </div>
-
-
-
             <div class="filter-controls">
+                <!-- Dropdown Filtro -->
+                <Dropdown v-if="dropdownFilter && dropdownOptions" v-model="filters.dropdown" :options="dropdownOptions"
+                    :optionLabel="dropdownLabel || 'name'" :placeholder="dropdownPlaceholder || 'Filtra...'"
+                    class="filter-dropdown" showClear />
+
+                <!-- Search -->
+                <InputText v-model="filters.search" placeholder="Cerca..." class="search-input" />
+
                 <Button @click="$emit('add-new')" icon="pi pi-plus" label="Nuovo" class="p-button-success" />
             </div>
         </div>
 
-        <!-- Tabella PrimeVue -->
+        <!-- Tabella -->
         <DataTable :value="filteredData" :loading="loading" :paginator="true" :rows="10"
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} di {totalRecords} record">
@@ -22,7 +24,13 @@
             <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header"
                 :sortable="col.sortable">
                 <template #body="slotProps">
-                    {{ formatCell(slotProps.data, col) }}
+                    <!-- ⭐ GESTIONE COLONNE CALCOLATE -->
+                    <span v-if="col.computed">
+                        {{ col.computed(slotProps.data) }}
+                    </span>
+                    <span v-else>
+                        {{ formatCell(slotProps.data, col) }}
+                    </span>
                 </template>
             </Column>
 
@@ -30,9 +38,9 @@
             <Column header="Azioni" style="width: 150px">
                 <template #body="slotProps">
                     <Button @click="$emit('edit', slotProps.data)" icon="pi pi-pencil"
-                        class="p-button-rounded p-button-text p-button-primary" />
+                        class="p-button-rounded p-button-outlined p-button-primary" />
                     <Button @click="$emit('delete', slotProps.data)" icon="pi pi-trash"
-                        class="p-button-rounded p-button-text p-button-danger" />
+                        class="p-button-rounded p-button-outlined p-button-danger" />
                 </template>
             </Column>
         </DataTable>
@@ -45,6 +53,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import Dropdown from 'primevue/dropdown'
 
 const props = defineProps({
     data: Array,
@@ -56,37 +65,52 @@ const props = defineProps({
     },
     searchFields: {
         type: Array,
-        default: () => ['name', 'description', 'budget']  // Default: cerca solo nel campo 'name'
-    }
+        default: () => ['name']
+    },
+    dropdownFilter: String,
+    dropdownOptions: Array,
+    dropdownLabel: String,
+    dropdownPlaceholder: String
 })
 
 const emit = defineEmits(['add-new', 'edit', 'delete'])
 
 const filters = ref({
-    search: ''
+    search: '',
+    dropdown: null
 })
 
 const filteredData = computed(() => {
-    if (!filters.value.search) {
-        return props.data  // Se non c'è ricerca, restituisci tutto
+    let filtered = props.data
+
+    // Filtro ricerca
+    if (filters.value.search) {
+        const searchTerm = filters.value.search.toLowerCase()
+        filtered = filtered.filter(item => {
+            return props.searchFields.some(field => {
+                const value = item[field]
+                return value && value.toString().toLowerCase().includes(searchTerm)
+            })
+        })
     }
 
-    const searchTerm = filters.value.search.toLowerCase()
-
-    return props.data.filter(item => {
-        // Cerca in tutti i campi specificati in searchFields
-        return props.searchFields.some(field => {
-            const value = item[field]
-            return value && value.toString().toLowerCase().includes(searchTerm)
+    // Filtro dropdown
+    if (filters.value.dropdown && props.dropdownFilter) {
+        filtered = filtered.filter(item => {
+            const itemValue = item[props.dropdownFilter]
+            const dropdownValue = filters.value.dropdown
+            return itemValue === dropdownValue ||
+                itemValue === dropdownValue?.id ||
+                itemValue?.id === dropdownValue
         })
-    })
-})
+    }
 
+    return filtered
+})
 
 const formatCell = (rowData, column) => {
     const value = rowData[column.field]
 
-    // Formattazione condizionale
     if (column.format === 'currency') {
         return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value)
     }
@@ -105,4 +129,25 @@ const formatCell = (rowData, column) => {
     border-radius: 10px;
     padding: 1rem;
 }
+
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-dropdown,
+.search-input {
+    min-width: 200px;
+}
+
+.action-btn {
+  color: #6c757d !important; /* Colore visibile */
+}
+
+.action-btn:hover {
+  color: white !important;
+}
+
 </style>

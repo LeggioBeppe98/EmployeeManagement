@@ -102,7 +102,18 @@ const tableColumns = ref([
   { field: 'name', header: 'Nome', sortable: true },
   { field: 'description', header: 'Descrizione', sortable: true },
   { field: 'budget', header: 'Budget', sortable: true, format: 'currency' },
-  { field: 'employeeCount', header: 'Dipendenti', sortable: true }
+  { 
+    field: 'employeeCount', 
+    header: 'Dipendenti', 
+    sortable: true,
+    computed: (dept) => {
+      if (!employeesStore.employees.length) return '0 dipendenti'
+      const count = employeesStore.employees.filter(emp => 
+        emp.department === dept.id || emp.department?.id === dept.id
+      ).length
+      return `${count} dipendenti`
+    }
+  }
 ])
 
 // Form dati
@@ -148,14 +159,17 @@ const clearSelection = () => {
   selectedDepartments.value = []
 }
 
+// METODI PER GESTIRE GLI EVENTI DEL COMPONENTE
 const editDepartment = (department) => {
+  console.log('Modifica dipartimento:', department)
   editingDepartment.value = department
   departmentForm.value = { ...department }
+  showCreateModal.value = true
 }
 
-// Correggi la funzione confirmDelete
 const confirmDelete = (department) => {
-  departmentToDelete.value = department  
+  console.log('Elimina dipartimento:', department)
+  departmentToDelete.value = department
   showDeleteModal.value = true
 }
 
