@@ -1,30 +1,29 @@
+// frontend/src/main.js
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { useUserStore } from './stores/user'
-
-// PRIMEVUE IMPORTS
 import PrimeVue from 'primevue/config'
-import Aura from '@primevue/themes/aura'
-import 'primeicons/primeicons.css'  
+import './assets/tailwind.css'
+
+// ⭐ Import Preset (Tema)
+import Lara from '@primevue/themes/lara';
+
+// ⭐ Icone (obbligatorie)
+import 'primeicons/primeicons.css';
 
 import App from './App.vue'
 import router from './router'
 
+const app = createApp(App);
 
-const app = createApp(App)
-
-app.use(createPinia())
-
-const userStore = useUserStore()
-userStore.setupAxiosInterceptors(userStore)
-
+app.use(createPinia());
 app.use(PrimeVue, {
     theme: {
-        preset: Aura
+        preset: Lara,
+        options: {
+        }
     },
-    ripple: true  // Effetti di click
-})
+    ripple: true
+});
 
-app.use(router)
-
-app.mount('#app')
+app.use(router);
+app.mount('#app');

@@ -420,5 +420,5 @@ onMounted(() => {
 </script>
 <style>
 /* Import condiviso */
-@import '../assets/css/shared.css';
+@import '../assets/shared.css';
 </style>

@@ -37,6 +37,35 @@ const userStore = useUserStore()
 </script>
 
 <style>
+:root {
+  /* Primari */
+  --color-primary: #2660A4;
+  --color-primary-dark: #1C4778;
+  --color-primary-light: #4B86C8;
+
+  /* Secondario */
+  --color-secondary: #E86A33;
+
+    /* Terziario */
+  --color-third: #3a93f9;
+
+  /*MAin background */
+    --color-main-background:#f1f5f9;
+
+  /* Sfondi & Testo */
+  --color-background-light: #F9F9F9;
+  --color-background-dark: #333333;
+  --color-text-dark: #1A1A1A;
+  --color-text-light: #FFFFFF;
+
+  /* Sistema/Stati */
+  --color-success: #4CAF50;
+  --color-warning: #FFC107;
+  --color-error: #F44336;
+  --color-border: #CCCCCC;
+}
+
+
 * {
   margin: 0;
   padding: 0;
@@ -44,7 +73,7 @@ const userStore = useUserStore()
 }
 
 .navbar {
-  background: #2c3e50;
+  background: var(--color-primary-dark);
   color: white;
   padding: 1rem 2rem;
   display: flex;
@@ -59,7 +88,7 @@ const userStore = useUserStore()
 
 .sidebar {
   width: 250px;
-  background: #34495e;
+  background: var(--color-primary-light);
   padding: 1rem;
 }
 
@@ -77,13 +106,14 @@ const userStore = useUserStore()
   transition: background 0.3s;
 }
 
-.nav-item:hover, .nav-item.router-link-active {
-  background: #3498db;
+.nav-item:hover,
+.nav-item.router-link-active {
+  background: var(--color-third);
 }
 
 .main-content {
   flex: 1;
   padding: 2rem;
-  background: #ecf0f1;
+  background: var(--color-main-background);
 }
 </style>
