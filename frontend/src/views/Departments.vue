@@ -1,20 +1,17 @@
 <template>
   <div class="departments-page">
     <!-- Header -->
-    <div class="page-header">
-      <h1>🏢 Gestione Dipartimenti</h1>
-      <p>Gestisci i dipartimenti aziendali e i budget</p>
-    </div>
+    <Card class="flex gap-4 mb-10">
+      <template #title>🏢 Gestione Dipartimenti</template>
+      <template #content>
+        <p class="m-0">Gestisci i dipartimenti aziendali e i budget</p>
+      </template>
+    </Card>
 
     <!-- Tabella Dipartimenti -->
-    <DataTableComponent
-      :data="departmentsStore.departments"
-      :columns="tableColumns"
-      :loading="departmentsStore.isLoading"
-      @add-new="showCreateModal = true"
-      @edit="editDepartment"
-      @delete="confirmDelete"
-    />
+    <DataTableComponent :data="departmentsStore.departments" :columns="tableColumns"
+      :loading="departmentsStore.isLoading" @add-new="showCreateModal = true" @edit="editDepartment"
+      @delete="confirmDelete" />
 
     <!-- Definizione Overlay -->
     <div v-if="selectedDepartments.length > 0" class="batch-actions">
@@ -83,8 +80,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useDepartmentsStore } from '../stores/departments'
-import { useEmployeesStore } from '../stores/employees' 
+import { useEmployeesStore } from '../stores/employees'
 import DataTableComponent from '../components/shared/DataTableComponent.vue'
+import Card from 'primevue/card';
 
 const departmentsStore = useDepartmentsStore()
 const employeesStore = useEmployeesStore()
@@ -102,13 +100,13 @@ const tableColumns = ref([
   { field: 'name', header: 'Nome', sortable: true },
   { field: 'description', header: 'Descrizione', sortable: true },
   { field: 'budget', header: 'Budget', sortable: true, format: 'currency' },
-  { 
-    field: 'employeeCount', 
-    header: 'Dipendenti', 
+  {
+    field: 'employeeCount',
+    header: 'Dipendenti',
     sortable: true,
     computed: (dept) => {
       if (!employeesStore.employees.length) return '0 dipendenti'
-      const count = employeesStore.employees.filter(emp => 
+      const count = employeesStore.employees.filter(emp =>
         emp.department === dept.id || emp.department?.id === dept.id
       ).length
       return `${count} dipendenti`
@@ -141,8 +139,8 @@ const loadDepartments = () => {
 // Metodo per contare i dipendenti
 const getEmployeeCount = (deptId) => {
   if (!employeesStore.employees.length) return 0
-  
-  return employeesStore.employees.filter(emp => 
+
+  return employeesStore.employees.filter(emp =>
     emp.department === deptId || emp.department?.id === deptId
   ).length
 }
@@ -215,7 +213,7 @@ const submitDepartmentForm = async () => {
   }
 }
 
-// Correggi la funzione deleteDepartment
+// Funzione deleteDepartment
 const deleteDepartment = async () => {
   isSubmitting.value = true
   try {

@@ -12,54 +12,75 @@
                     :placeholder="dropdownPlaceholder || 'Filtra...'" showClear class="w-20rem" />
 
                 <!-- Search box -->
-                <div class="flex justify-content-end align-items-center gap-3">
+                <div class="flex justify-between align-items-center gap-3 w-full mac-w-100">
+                    <div class="align-left">
+                        <IconField>
+                            <InputIcon class="pi pi-search" />
+                            <InputText v-model="filters.search" placeholder="Cerca" />
+                        </IconField>
+                    </div>
+                    <div class="align-right">
+                        <div class="flex justify-end gap-3">
+                            <div>
+                                <Button label="Nuovo" icon="pi pi-plus" @click="$emit('add-new')" />
+                            </div>
+                            <div>
+                                <Button icon="pi pi-download" @click="exportSelected"
+                                    :disabled="selectedItems.length === 0" severity="secondary" />
+                            </div>
+                            <div>
+                                <Button icon="pi pi-trash"
+                                    @click="$emit('delete-selected', selectedItems)"
+                                    :disabled="selectedItems.length === 0" severity="secondary" />
+                            </div>
+                        </div>
 
-                    <IconField>
-                        <InputIcon class="pi pi-search" />
-                        <InputText v-model="filters.search" placeholder="Cerca" />
-                    </IconField>
-
-                    <Button label="Nuovo" icon="pi pi-plus" @click="$emit('add-new')" />
-
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- DATATABLE -->
-        <DataTable :value="filteredData" :loading="loading" :paginator="true" :rows="10"
-            class="p-datatable-sm"
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
-            currentPageReportTemplate="Mostrando {first} a {last} di {totalRecords} record">
+        <div>
+            <DataTable :value="filteredData" :loading="loading" :paginator="true" :rows="10" class="p-datatable-sm"
+                v-model:selection="selectedItems" dataKey="id"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
+                currentPageReportTemplate="Mostrando {first} a {last} di {totalRecords} record">
 
-            <!-- Colonne dinamiche -->
-            <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header"
-                :sortable="col.sortable">
-                <template #body="slotProps">
-                    <span v-if="col.computed">
-                        {{ col.computed(slotProps.data) }}
-                    </span>
-                    <span v-else>
-                        {{ formatCell(slotProps.data, col) }}
-                    </span>
-                </template>
-            </Column>
+                <!-- Colonna select all -->
+                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
 
-            <!-- Colonna azioni -->
-            <Column header="Azioni" style="width: 150px">
-                <template #body="slotProps">
-                    <div class="flex gap-2">
+                <!-- Colonne dinamiche -->
+                <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header"
+                    :sortable="col.sortable">
+                    <template #body="slotProps">
+                        <span v-if="col.computed">
+                            {{ col.computed(slotProps.data) }}
+                        </span>
+                        <span v-else>
+                            {{ formatCell(slotProps.data, col) }}
+                        </span>
+                    </template>
+                </Column>
 
-                        <Button @click="$emit('edit', slotProps.data)" icon="pi pi-pencil" severity="info" outlined
-                            rounded />
+                <!-- Colonna azioni -->
+                <Column header="Azioni" style="width: 150px">
+                    <template #body="slotProps">
+                        <div class="flex gap-2">
 
-                        <Button @click="$emit('delete', slotProps.data)" icon="pi pi-trash" severity="danger" outlined
-                            rounded />
+                            <Button @click="$emit('edit', slotProps.data)" icon="pi pi-pencil" severity="info" outlined
+                                rounded />
 
-                    </div>
-                </template>
-            </Column>
+                            <Button @click="$emit('delete', slotProps.data)" icon="pi pi-trash" severity="danger"
+                                outlined rounded />
 
-        </DataTable>
+                        </div>
+                    </template>
+                </Column>
+
+            </DataTable>
+        </div>
+
     </div>
 </template>
 
@@ -71,8 +92,10 @@ import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import Dropdown from 'primevue/dropdown'
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
+
+const selectedItems = ref([])
 
 
 const props = defineProps({
@@ -93,7 +116,7 @@ const props = defineProps({
     dropdownPlaceholder: String
 })
 
-const emit = defineEmits(['add-new', 'edit', 'delete'])
+const emit = defineEmits(['add-new', 'edit', 'delete', 'selection-change', 'export'])
 
 const filters = ref({
     search: '',
@@ -141,6 +164,43 @@ const formatCell = (rowData, column) => {
 
     return value
 }
+
+const exportSelected = () => {
+    if (selectedItems.value.length === 0) {
+        // Nessuna riga selezionata
+        return
+    }
+
+    // Crea CSV
+    const headers = props.columns.map(col => col.header).join(',')
+    const csvData = selectedItems.value.map(item => {
+        return props.columns.map(col => {
+            const value = item[col.field]
+            // Gestisci valori speciali
+            if (col.format === 'currency') {
+                return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value)
+            }
+            if (col.format === 'date') {
+                return new Date(value).toLocaleDateString('it-IT')
+            }
+            return `"${value}"` // Metti tra virgolette per CSV
+        }).join(',')
+    }).join('\n')
+
+    const csv = `${headers}\n${csvData}`
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'dati_selezionati.csv'
+    a.click()
+    window.URL.revokeObjectURL(url)
+
+    // Emetti evento per il componente padre
+    emit('export', selectedItems.value)
+}
 </script>
 
 <style scoped>
@@ -149,6 +209,4 @@ const formatCell = (rowData, column) => {
     border-radius: 10px;
     background-color: white;
 }
-
-
 </style>
