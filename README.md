@@ -11,7 +11,7 @@ It's a fullstack web application for complete company personnel management. It i
 - **PostgreSQL** - Database
 - **JWT** - Autentication
 
-### Frontend (Coming soon)
+### Frontend (In progress)
 - **Vue.js 3** - Framework frontend
 - **Chart.js** - Data visualization
 - **Vite** - Build tool
