@@ -24,14 +24,20 @@
       </main>
     </div>
 
+
+
     <!-- Mostra le pagine pubbliche (login) se non autenticato -->
     <router-view v-else />
+    <Toast />
+    <ConfirmDialog />
 
   </div>
 </template>
 
 <script setup>
 import { useUserStore } from './stores/user'
+import Toast from 'primevue/toast'
+import ConfirmDialog from 'primevue/confirmdialog'
 
 const userStore = useUserStore()
 </script>
@@ -46,11 +52,11 @@ const userStore = useUserStore()
   /* Secondario */
   --color-secondary: #E86A33;
 
-    /* Terziario */
+  /* Terziario */
   --color-third: #3a93f9;
 
   /*MAin background */
-    --color-main-background:#f1f5f9;
+  --color-main-background: #f1f5f9;
 
   /* Sfondi & Testo */
   --color-background-light: #F9F9F9;

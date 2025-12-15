@@ -29,8 +29,7 @@
                                     :disabled="selectedItems.length === 0" severity="secondary" />
                             </div>
                             <div>
-                                <Button icon="pi pi-trash"
-                                    @click="$emit('delete-selected', selectedItems)"
+                                <Button icon="pi pi-trash" @click="confirmDeleteSelected"
                                     :disabled="selectedItems.length === 0" severity="secondary" />
                             </div>
                         </div>
@@ -87,6 +86,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
@@ -94,8 +95,13 @@ import Button from 'primevue/button'
 import Dropdown from 'primevue/dropdown'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
+import ConfirmDialog from 'primevue/confirmdialog'
+
+const confirm = useConfirm()
+const toast = useToast()
 
 const selectedItems = ref([])
+
 
 
 const props = defineProps({
@@ -113,10 +119,19 @@ const props = defineProps({
     dropdownFilter: String,
     dropdownOptions: Array,
     dropdownLabel: String,
-    dropdownPlaceholder: String
+    dropdownPlaceholder: String,
+    deleteConfirmation: {
+        type: Object,
+        default: () => ({
+            message: 'Sei sicuro di voler eliminare gli elementi selezionati?',
+            header: 'Conferma Eliminazione',
+            icon: 'pi pi-exclamation-triangle'
+        })
+    }
+
 })
 
-const emit = defineEmits(['add-new', 'edit', 'delete', 'selection-change', 'export'])
+const emit = defineEmits(['add-new', 'edit', 'delete', 'delete-selected', 'selection-change', 'export'])
 
 const filters = ref({
     search: '',
@@ -200,6 +215,43 @@ const exportSelected = () => {
 
     // Emetti evento per il componente padre
     emit('export', selectedItems.value)
+}
+
+const confirmDeleteSelected = () => {
+    if (selectedItems.value.length === 0) return
+
+    confirm.require({
+        message: props.deleteConfirmation.message.replace('{count}', selectedItems.value.length),
+        header: props.deleteConfirmation.header,
+        icon: props.deleteConfirmation.icon,
+        accept: () => {
+            // Emetti l'evento con gli elementi da eliminare
+            emit('delete-selected', selectedItems.value)
+
+            // Pulisci la selezione
+            selectedItems.value = []
+
+            // Mostra conferma
+            toast.add({
+                severity: 'success',
+                summary: 'Eliminati',
+                detail: `${selectedItems.value.length} elementi eliminati`,
+                life: 3000
+            })
+        }
+    })
+}
+
+// ⭐ FUNZIONE PER ELIMINAZIONE SINGOLA (se vuoi mantenerla)
+const confirmDeleteSingle = (item) => {
+    confirm.require({
+        message: 'Sei sicuro di voler eliminare questo elemento?',
+        header: 'Conferma Eliminazione',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+            emit('delete', item)
+        }
+    })
 }
 </script>
 

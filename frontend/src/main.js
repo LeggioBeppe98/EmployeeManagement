@@ -12,8 +12,13 @@ import 'primeicons/primeicons.css';
 
 import App from './App.vue'
 import router from './router'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
 
 const app = createApp(App);
+
+app.use(ConfirmationService)  // ⭐ Deve essere qui
+app.use(ToastService)  
 
 app.use(createPinia());
 app.use(PrimeVue, {

@@ -11,7 +11,11 @@
     <!-- Tabella Dipartimenti -->
     <DataTableComponent :data="departmentsStore.departments" :columns="tableColumns"
       :loading="departmentsStore.isLoading" @add-new="showCreateModal = true" @edit="editDepartment"
-      @delete="confirmDelete" />
+      :deleteConfirmation="{
+        message: 'Sei sicuro di voler eliminare {count} dipartimenti?',
+        header: 'Elimina Dipartimenti',
+        icon: 'pi pi-building'
+      }" @delete-selected="handleDeleteDepartments" />
 
     <!-- Definizione Overlay -->
     <div v-if="selectedDepartments.length > 0" class="batch-actions">
